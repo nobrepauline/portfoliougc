@@ -154,7 +154,7 @@ section{padding:96px 0}
 .destaques{background:var(--verde);color:var(--creme);position:relative}
 .destaques .cabeca h2{color:var(--creme)}
 .destaques .cabeca p{color:#d9e5dc}
-.destaques-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.destaques-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;max-width:960px;margin-inline:auto}
 .video-card{display:block;text-decoration:none;color:var(--tinta);background:var(--creme);border-radius:var(--raio);padding:12px 12px 22px;box-shadow:0 20px 40px -24px rgba(0,0,0,.6);transition:transform .35s,box-shadow .35s;position:relative}
 .video-card::before{content:"";position:absolute;inset:5px;border:1px solid rgba(201,162,74,.6);border-radius:14px;pointer-events:none}
 .video-card:hover{transform:translateY(-6px) rotate(-.4deg)}
@@ -283,7 +283,6 @@ section{padding:96px 0}
 /* ============ RESPONSIVO ============ */
 @media (max-width:980px){
   .capa-grid,.sobre-grid,.contato-grid{grid-template-columns:1fr;gap:44px}
-  .destaques-grid{grid-template-columns:repeat(2,1fr);max-width:760px;margin-inline:auto}
   .capa-foto{max-width:360px;margin-inline:auto;width:100%}
   .capa-texto{padding-bottom:0}
   .sobre-foto{max-width:400px;margin-inline:auto;width:100%}
@@ -590,8 +589,6 @@ const marcas = ["Soluna", "Deva Curl", "Elacy Erva-Mate", "Under Labs", "Boticá
    Para vídeo do YouTube, a capa pode ser https://i.ytimg.com/vi/CODIGO_DO_VIDEO/hqdefault.jpg
    numero e rotulo: opcionais. Vazios, o card não mostra número. Exemplo: numero: "+2,4M", rotulo: "views no reels" */
 const destaques = [
-  { link: "https://youtube.com/shorts/tNQ7_6Nf89k", capa: "https://i.ytimg.com/vi/tNQ7_6Nf89k/hqdefault.jpg", numero: "", rotulo: "",
-    titulo: "Vídeo de gastronomia", contexto: "Escreva aqui a marca e o objetivo deste vídeo." },
   { link: "https://www.instagram.com/reel/DefL3QhPzyg/", capa: "capa-janta.webp", numero: "", rotulo: "",
     titulo: "Sua janta pronta em 10 minutos", contexto: "Escreva aqui a marca e o objetivo deste vídeo." },
   { link: "https://www.instagram.com/reel/Da-GhcIuwvB/", capa: "capa-mate.webp", numero: "", rotulo: "",
@@ -614,7 +611,6 @@ const trabalhos = [
   { nicho: "Skincare", titulo: "Antes e depois do sérum",       marca: "Marca 04", formato: "Corte para anúncio", imagem: "", link: "" },
   { nicho: "Moda",     titulo: "Provador com looks do dia",     marca: "Marca 05", formato: "Reels 9:16",        imagem: "", link: "" },
   { nicho: "Moda",     titulo: "Fotos de produto vestido",      marca: "Marca 06", formato: "Fotos 4:5",         imagem: "", link: "" },
-  { nicho: "Gastronomia", titulo: "Vídeo de gastronomia",    marca: "Marca 07", formato: "YouTube Shorts 9:16", imagem: "https://i.ytimg.com/vi/tNQ7_6Nf89k/hqdefault.jpg", link: "https://youtube.com/shorts/tNQ7_6Nf89k" },
   { nicho: "Gastronomia", titulo: "Sua janta pronta em 10 minutos", marca: "Marca 08", formato: "Reels 9:16", imagem: "trabalho-janta.webp", link: "https://www.instagram.com/reel/DefL3QhPzyg/" },
   { nicho: "Fitness",  titulo: "Hoje eu quase falhei",          marca: "Marca 09", formato: "Reels 9:16",        imagem: "trabalho-creatina.webp", link: "https://www.instagram.com/reel/DaQer8qhO_J/" },
   { nicho: "Fitness",  titulo: "Minha rotina de emagrecimento", marca: "Marca 10", formato: "Storytelling 9:16", imagem: "", link: "" },

@@ -210,6 +210,14 @@ section{padding:96px 0}
 .lb img{max-height:calc(100vh - 140px);width:auto;max-width:100%;margin:0 auto;border-radius:8px}
 .lb p{margin:10px 40px 0;text-align:center;font-family:var(--fs-script);font-size:1.5rem;color:var(--verde)}
 .lb .fechar{top:-16px;right:-16px;background:var(--creme)}
+/* player de vídeo dentro do site */
+.player{position:relative;background:var(--creme);border:3px double var(--dourado);border-radius:var(--raio);padding:10px;width:min(400px,100%);animation:surgir .35s ease both}
+.player-tela{position:relative;width:100%;aspect-ratio:9/16;max-height:calc(100vh - 120px);margin:0 auto;border-radius:10px;overflow:hidden;background:#000}
+.player-tela.insta{background:#fff}
+.player-tela iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.player p{margin:10px 40px 2px;text-align:center;font-family:var(--fs-script);font-size:1.4rem;color:var(--verde);line-height:1.2}
+.player .fechar{top:-16px;right:-16px;background:var(--creme);z-index:3}
+@media (max-height:700px){.player{width:min(320px,100%)}}
 
 /* SERVIÇOS */
 .servicos{background:linear-gradient(180deg,transparent,rgba(232,154,184,.18) 30%,rgba(232,154,184,.18) 70%,transparent)}
@@ -406,7 +414,7 @@ section{padding:96px 0}
     <div class="cabeca revela">
       <span class="script">os queridinhos</span>
       <h2 id="titulo-destaques">Conteúdos de destaque</h2>
-      <p>Vídeos que mostram como eu conto histórias que vendem. Toque no card para assistir.</p>
+      <p>Vídeos que mostram como eu conto histórias que vendem. Toque no card para assistir aqui mesmo.</p>
     </div>
     <!-- Os três cards vêm do array "destaques" no script.
          LINK DO VÍDEO: campo "link". CAPA: campo "capa" (deixe vazio para usar o degradê). -->
@@ -522,6 +530,15 @@ section{padding:96px 0}
     <small>© <span id="ano"></span> Pauline Nobre. UGC Creator. Todos os direitos reservados.</small>
   </div>
 </footer>
+
+<!-- ============ PLAYER DE VÍDEO ============ -->
+<div class="fundo-modal" id="player" aria-hidden="true">
+  <div class="player" role="dialog" aria-modal="true" aria-labelledby="playerTitulo">
+    <button class="fechar" type="button" id="fecharPlayer" aria-label="Fechar vídeo">×</button>
+    <div class="player-tela" id="playerTela"></div>
+    <p id="playerTitulo"></p>
+  </div>
+</div>
 
 <!-- ============ FOTO AMPLIADA ============ -->
 <div class="fundo-modal" id="lightbox" aria-hidden="true">
@@ -642,7 +659,7 @@ $("#faixaMarcas").innerHTML = `<ul>${listaMarcas}</ul><ul aria-hidden="true">${l
 
 /* Destaques */
 $("#gradeDestaques").innerHTML = destaques.map((d, i) => `
-  <a class="video-card revela" href="${esc(d.link)}" target="_blank" rel="noopener" aria-label="Assistir: ${esc(d.titulo)} (abre em nova aba)">
+  <a class="video-card revela" href="${esc(d.link)}" target="_blank" rel="noopener" data-video="${esc(d.link)}" data-titulo="${esc(d.titulo)}" aria-label="Assistir: ${esc(d.titulo)}">
     <div class="capa-video${d.capa ? " com-capa" : ""}">
       <div class="ph r916" ${d.capa ? 'aria-hidden="true"' : `role="img" aria-label="Espaço para a capa do vídeo ${i + 1}"`}><span class="ph-legenda">capa do vídeo 9:16</span></div>
       ${d.capa ? `<img class="capa-img${d.capa.includes("ytimg.com") ? " yt" : ""}" src="${esc(d.capa)}" alt="Capa do vídeo ${esc(d.titulo)}" width="540" height="960" loading="lazy" onerror="this.parentNode.classList.remove('com-capa');this.remove()">` : ""}
@@ -670,7 +687,7 @@ function desenhaGaleria(nicho) {
       ? `<div class="ph${verde} r45 midia"><img class="${t.imagem.includes("ytimg.com") ? "yt" : ""}" src="${esc(t.imagem)}" alt="${esc(t.titulo)} para ${esc(t.marca)}" width="400" height="500" loading="lazy" onerror="this.remove()"></div>`
       : `<div class="ph${verde} r45" role="img" aria-label="Espaço para a imagem do trabalho ${esc(t.titulo)}"><span class="ph-legenda">${esc(t.formato)}</span></div>`;
     const conteudo = `${midia}<span class="tag">${esc(t.nicho)}</span><h3>${esc(t.titulo)}</h3><p>${esc(t.marca)} | ${esc(t.formato)}</p>`;
-    return `<li class="trabalho">${t.link ? `<a href="${esc(t.link)}" target="_blank" rel="noopener" style="text-decoration:none">${conteudo}</a>` : conteudo}</li>`;
+    return `<li class="trabalho">${t.link ? `<a href="${esc(t.link)}" target="_blank" rel="noopener" data-video="${esc(t.link)}" data-titulo="${esc(t.titulo)}" aria-label="Assistir: ${esc(t.titulo)}" style="text-decoration:none">${conteudo}</a>` : conteudo}</li>`;
   }).join("") || `<li style="grid-column:1/-1;text-align:center">Em breve, trabalhos neste nicho.</li>`;
 }
 filtrosEl.addEventListener("click", (e) => {
@@ -709,6 +726,42 @@ $("#gradeFotos").addEventListener("click", (e) => {
 });
 $("#fecharLightbox").addEventListener("click", fechaLightbox);
 lightbox.addEventListener("click", (e) => { if (e.target === lightbox) fechaLightbox(); });
+
+/* PLAYER: os vídeos do YouTube e do Instagram tocam dentro do site.
+   Funciona sozinho a partir do link do vídeo (campo "link" nos dados). */
+function enderecoPlayer(link) {
+  const yt = link.match(/(?:youtube\.com\/(?:shorts\/|watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/);
+  if (yt) return { src: `https://www.youtube-nocookie.com/embed/${yt[1]}?autoplay=1&playsinline=1&rel=0`, tipo: "yt" };
+  const ig = link.match(/instagram\.com\/(?:reel|p|tv)\/([\w-]+)/);
+  if (ig) return { src: `https://www.instagram.com/reel/${ig[1]}/embed/`, tipo: "insta" };
+  return null;
+}
+const player = $("#player");
+let focoPlayer = null;
+function abrePlayer(link, titulo) {
+  const v = enderecoPlayer(link);
+  if (!v) return false;
+  focoPlayer = document.activeElement;
+  const tela = $("#playerTela");
+  tela.className = "player-tela" + (v.tipo === "insta" ? " insta" : "");
+  tela.innerHTML = `<iframe src="${v.src}" title="${esc(titulo)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+  $("#playerTitulo").textContent = titulo;
+  player.classList.add("aberto"); player.setAttribute("aria-hidden", "false");
+  $("#fecharPlayer").focus();
+  return true;
+}
+function fechaPlayer() {
+  if (!player.classList.contains("aberto")) return;
+  $("#playerTela").innerHTML = ""; /* tira o iframe para o vídeo parar */
+  player.classList.remove("aberto"); player.setAttribute("aria-hidden", "true");
+  if (focoPlayer && focoPlayer.focus) focoPlayer.focus();
+}
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a[data-video]");
+  if (a && abrePlayer(a.dataset.video, a.dataset.titulo)) e.preventDefault();
+});
+$("#fecharPlayer").addEventListener("click", fechaPlayer);
+player.addEventListener("click", (e) => { if (e.target === player) fechaPlayer(); });
 
 /* Serviços */
 $("#gradeServicos").innerHTML = servicos.map((s, i) => `
@@ -775,7 +828,7 @@ if (!jaViu) {
 $("#fecharModal").addEventListener("click", fechaModal);
 fundo.addEventListener("click", (e) => { if (e.target === fundo) fechaModal(); });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") { fechaModal(); fechaMenu(); fechaLightbox(); }
+  if (e.key === "Escape") { fechaModal(); fechaMenu(); fechaLightbox(); fechaPlayer(); }
   if (e.key === "Tab" && fundo.classList.contains("aberto")) {
     const focaveis = [...fundo.querySelectorAll("button, input, [tabindex='-1'].ativa")].filter((el) => el.offsetParent !== null);
     const primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];

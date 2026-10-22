@@ -85,6 +85,11 @@ p{margin:0 0 1em}
 .bf-selo{background:var(--verde-escuro);color:var(--creme);font-weight:600;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:999px}
 .barra-bf strong{font-weight:600}
 .bf-sep{opacity:.6}
+.bf-extra,#bfTexto{display:inline-block;transition:opacity .35s ease,transform .35s ease}
+.bf-sai{opacity:0;transform:translateY(-6px)}
+.bf-botao{background:var(--verde-escuro);color:var(--creme);text-decoration:none;font-weight:600;font-size:.78rem;letter-spacing:.04em;padding:5px 14px;border-radius:999px;margin-left:6px;transition:background .2s,transform .2s;flex:none}
+.bf-botao:hover{background:var(--verde);transform:translateY(-1px)}
+.bf-botao:focus-visible{outline:2px solid var(--verde-escuro);outline-offset:2px}
 
 /* ============ CAPA ============ */
 .capa{padding-top:var(--topo);position:relative}
@@ -311,9 +316,12 @@ section{padding:96px 0}
   .ola{font-size:1.7rem}
   .selo{letter-spacing:.14em;font-size:.76rem}
   .selo::before,.selo::after{width:20px}
-  .bf-sep,.bf-extra{display:none}
-  .barra-bf{font-size:.86rem;gap:8px}
-  .bf-selo{font-size:.62rem;letter-spacing:.1em;padding:3px 9px}
+  /* no celular as frases alternam no lugar da contagem, e o selo sai para caber o botão */
+  .bf-sep,.bf-extra,.bf-selo{display:none}
+  .barra-bf{font-size:.78rem;gap:8px;justify-content:space-between;padding:0 12px}
+  .bf-longo{display:none}
+  #bfTexto{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .bf-botao{font-size:.72rem;padding:4px 11px;margin-left:0}
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -336,7 +344,8 @@ section{padding:96px 0}
     <span class="bf-selo">Black Friday</span>
     <strong id="bfTexto">Black Friday chegando</strong>
     <span class="bf-sep" aria-hidden="true">•</span>
-    <span class="bf-extra" id="bfExtra">reserve a sua agenda de novembro</span>
+    <span class="bf-extra" id="bfExtra">reserve uma vaga para novembro</span>
+    <a class="bf-botao" href="#contato">Reservar<span class="bf-longo"> agenda</span></a>
   </div>
   <div class="wrap">
     <a class="logo" href="#inicio" aria-label="Pauline Nobre, voltar ao início">Pauline Nobre <span>ugc</span></a>
@@ -579,6 +588,13 @@ section{padding:96px 0}
 /* =====================================================================
    DADOS DO PORTFÓLIO: edite aqui sem mexer no HTML
    ===================================================================== */
+
+/* Frases que alternam na faixa da Black Friday */
+const frasesBlackFriday = [
+  "criativos para tráfego prontos antes do pico",
+  "reserve uma vaga para novembro",
+  "destaque sua marca na Black"
+];
 
 /* Marcas da faixa da capa */
 const marcas = ["Soluna", "Deva Curl", "Elacy Erva-Mate", "Under Labs", "Boticário", "Gocase"];
@@ -852,10 +868,32 @@ function atualizaBlackFriday() {
   if (bf < hoje) bf = dataBlackFriday(hoje.getFullYear() + 1);
   const dias = Math.round((bf - hoje) / 86400000);
   $("#bfTexto").textContent = dias === 0 ? "Hoje é Black Friday!" : `Falta${dias > 1 ? "m" : ""} ${dias} dia${dias > 1 ? "s" : ""} pra Black Friday`;
-  $("#bfExtra").textContent = dias === 0 ? "corre pra garantir o seu conteúdo" : "reserve a sua agenda de novembro";
+  textoContagem = $("#bfTexto").textContent;
 }
+let textoContagem = "";
 atualizaBlackFriday();
 setInterval(atualizaBlackFriday, 60000);
+
+/* Frases alternando a cada 3,5 segundos (pausa quando o mouse ou o foco está na faixa).
+   No computador alternam ao lado da contagem; no celular alternam com a própria contagem. */
+const celular = window.matchMedia("(max-width:620px)");
+let passoFrase = 0, pausaFrase = false;
+function trocaFrase() {
+  if (pausaFrase || document.hidden) return;
+  const alvo = celular.matches ? $("#bfTexto") : $("#bfExtra");
+  const lista = celular.matches ? [textoContagem, ...frasesBlackFriday] : frasesBlackFriday;
+  passoFrase = (passoFrase + 1) % lista.length;
+  const aplica = () => { alvo.textContent = lista[passoFrase]; alvo.classList.remove("bf-sai"); };
+  if (reduzMovimento) { aplica(); return; }
+  alvo.classList.add("bf-sai");
+  setTimeout(aplica, 350);
+}
+celular.addEventListener("change", () => { passoFrase = 0; $("#bfTexto").textContent = textoContagem; $("#bfExtra").textContent = frasesBlackFriday[0]; });
+$("#bfExtra").textContent = frasesBlackFriday[0];
+const barraBf = $("#barraBf");
+["mouseenter", "focusin"].forEach((ev) => barraBf.addEventListener(ev, () => (pausaFrase = true)));
+["mouseleave", "focusout"].forEach((ev) => barraBf.addEventListener(ev, () => (pausaFrase = false)));
+setInterval(trocaFrase, 3500);
 
 /* Ano automático no rodapé */
 $("#ano").textContent = new Date().getFullYear();

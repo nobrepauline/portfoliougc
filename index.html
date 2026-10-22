@@ -597,7 +597,7 @@ const destaques = [
     titulo: "Hoje eu quase falhei", contexto: "Vídeo sobre creatina para a Underlabz." }
 ];
 
-/* Nichos que aparecem nos botões de filtro */
+/* Nichos dos botões de filtro (o botão só aparece quando o nicho tem algum trabalho) */
 const nichos = ["Beleza", "Skincare", "Moda", "Gastronomia", "Fitness", "Wellness", "Tech"];
 
 /* Trabalhos da galeria.
@@ -605,21 +605,13 @@ const nichos = ["Beleza", "Skincare", "Moda", "Gastronomia", "Fitness", "Wellnes
    imagem: caminho da foto 4:5 (ex.: "trabalho-1.webp"). Vazio = degradê com legenda.
    link: opcional, endereço do post. */
 const trabalhos = [
-  { nicho: "Beleza",   titulo: "Vídeo UGC de maquiagem",        marca: "Marca 01", formato: "Reels 9:16",        imagem: "", link: "" },
-  { nicho: "Beleza",   titulo: "Rotina de cabelo cacheado",     marca: "Marca 02", formato: "Reels 9:16",        imagem: "", link: "" },
-  { nicho: "Skincare", titulo: "Rotina de skincare da manhã",   marca: "Marca 03", formato: "Vídeo UGC 9:16",    imagem: "", link: "" },
-  { nicho: "Skincare", titulo: "Antes e depois do sérum",       marca: "Marca 04", formato: "Corte para anúncio", imagem: "", link: "" },
-  { nicho: "Moda",     titulo: "Provador com looks do dia",     marca: "Marca 05", formato: "Reels 9:16",        imagem: "", link: "" },
-  { nicho: "Moda",     titulo: "Fotos de produto vestido",      marca: "Marca 06", formato: "Fotos 4:5",         imagem: "", link: "" },
   { nicho: "Gastronomia", titulo: "Sua janta pronta em 10 minutos", marca: "Wickbold", formato: "Reels 9:16", imagem: "trabalho-janta.webp", link: "https://www.instagram.com/reel/DefL3QhPzyg/" },
   { nicho: "Gastronomia", titulo: "O ritual da erva-mate",    marca: "Elacy",    formato: "YouTube Shorts 9:16", imagem: "trabalho-elacy.webp", link: "https://youtube.com/shorts/exTyG7KBEQM" },
   { nicho: "Gastronomia", titulo: "Unboxing",                 marca: "Lago Verde", formato: "YouTube Shorts 9:16", imagem: "trabalho-lagoverde.webp", link: "https://youtube.com/shorts/vK-t2Qec1Iw" },
   { nicho: "Fitness",  titulo: "Hoje eu quase falhei",          marca: "Underlabz", formato: "Reels 9:16",        imagem: "trabalho-creatina.webp", link: "https://www.instagram.com/reel/DaQer8qhO_J/" },
-  { nicho: "Fitness",  titulo: "Minha rotina de emagrecimento", marca: "Marca 10", formato: "Storytelling 9:16", imagem: "", link: "" },
   { nicho: "Wellness", titulo: "Unboxing do Reset Night",       marca: "Soluna",   formato: "Unboxing 9:16",     imagem: "trabalho-soluna.webp", link: "https://youtube.com/shorts/zVpVwwlBgCY" },
   { nicho: "Wellness", titulo: "Ritual noturno com Soluna",      marca: "Soluna", formato: "YouTube Shorts 9:16", imagem: "trabalho-desacelerar.webp", link: "https://youtube.com/shorts/8iV11TiNliU" },
   { nicho: "Tech",     titulo: "Parei de errar!",               marca: "Guia do Mate", formato: "Reels 9:16",    imagem: "trabalho-mate.webp", link: "https://www.instagram.com/reel/Da-GhcIuwvB/" },
-  { nicho: "Tech",     titulo: "Capinha no dia a dia",          marca: "Marca 12", formato: "Fotos 4:5",         imagem: "", link: "" }
 ];
 
 /* Fotos de produto.
@@ -674,7 +666,8 @@ $("#gradeDestaques").innerHTML = destaques.map((d, i) => `
 
 /* Galeria com filtro */
 const filtrosEl = $("#filtros");
-filtrosEl.innerHTML = ["Todos", ...nichos]
+/* só aparece o botão do nicho que já tem trabalho na lista */
+filtrosEl.innerHTML = ["Todos", ...nichos.filter((n) => trabalhos.some((t) => t.nicho === n))]
   .map((n, i) => `<button class="filtro" type="button" data-nicho="${esc(n)}" aria-pressed="${i === 0}">${esc(n)}</button>`).join("");
 
 function desenhaGaleria(nicho) {
